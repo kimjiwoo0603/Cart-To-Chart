@@ -6,4 +6,3 @@ seaborn
 requests
 pytrends
 jupyter
-duckdb
