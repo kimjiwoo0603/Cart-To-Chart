@@ -16,20 +16,48 @@
 ## 폴더 구조
 ```
 Cart-To-Chart/
-├── data/                  # 데이터는 git에 올리지 않음 (.gitignore)
-│   ├── raw/               # 원본 그대로 (데이터셋별 하위 폴더)
-│   ├── interim/           # 정제 중간 결과
-│   └── processed/         # 분석/시각화에 바로 쓰는 최종 데이터
+├── data/                        # 데이터 파일은 git에 올리지 않음 (.gitignore)
+│   ├── raw/                     # 원본 그대로
+│   │   ├── google_trends/
+│   │   ├── open_ecommerce/
+│   │   └── amazon_reviews/
+│   ├── interim/                 # 정제 중간 결과
+│   │   ├── cleaned_trends/
+│   │   ├── cleaned_purchase/
+│   │   └── filtered_reviews/
+│   └── processed/               # 분석에 바로 쓰는 주간 데이터
+│       ├── weekly_trends/
+│       ├── weekly_purchase/
+│       ├── weekly_reviews/
+│       └── integrated/
+├── mapping/
+│   └── keyword_product_mapping.csv   # 키워드–상품 매핑 (논문팀·전처리팀 공유)
+├── logs/
+│   └── preprocessing_log.md     # 전처리 결정 기록
 ├── src/
-│   ├── collect/           # 데이터 수집·다운로드 스크립트
-│   ├── preprocess/        # 정제 및 ASIN 조인
-│   └── eda/               # 탐색적 분석, 그래프 생성
-├── notebooks/             # 실험용 주피터 노트북
-├── reports/figures/       # 발표에 쓸 그래프 이미지
-└── docs/
-    ├── literature/        # 선행논문 조사
-    └── slides/            # 발표 자료
+│   ├── collect/                 # 데이터 수집·다운로드
+│   ├── preprocess/              # 정제 및 ASIN 조인
+│   └── eda/
+├── notebooks/
+├── analysis/
+│   ├── eda/                     # EDA 그래프
+│   └── lag_analysis/
+├── docs/literature/             # 선행논문 정리
+└── presentation/
+    ├── slides/
+    └── video/
 ```
+
+## 브랜치
+조원별 브랜치에서 작업하고 PR로 `main`에 합칩니다.
+
+| 조원 | 브랜치 |
+|---|---|
+| 김지우 | `kimjiwoo` |
+| 김다빈 | `kimdabin` |
+| 정세은 | `jeongseeun` |
+| 남지원 | `namjiwon` |
+| 안서연 | `anseoyeon` |
 
 ## 시작하기
 ```bash
