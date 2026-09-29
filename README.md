@@ -13,6 +13,24 @@
 
 2번과 3번은 상품 ID인 **ASIN**으로 조인합니다.
 
+## 원본 데이터 받기
+원본 데이터는 용량이 커서 git에 올리지 않습니다 (GitHub는 100MB가 넘는 파일을 받지 않음). 각자 아래 링크에서 받아 표의 위치에 파일 이름 그대로 저장하세요.
+
+| 데이터 | 파일 | 크기 | 받는 곳 | 저장 위치 |
+|---|---|---|---|---|
+| Open E-commerce 1.0 | `amazon-purchases.csv` | 313MB | [Harvard Dataverse](https://doi.org/10.7910/DVN/YGLYDY) ([바로 받기](https://dataverse.harvard.edu/api/access/datafile/7616235?format=original)) | `data/raw/open_ecommerce/` |
+| Amazon Reviews 2023 (Home and Kitchen) | `Home_and_Kitchen.jsonl.gz` | 8.3GB (압축) | [McAuley Lab](https://amazon-reviews-2023.github.io/) ([바로 받기](https://mcauleylab.ucsd.edu/public_datasets/data/amazon_2023/raw/review_categories/Home_and_Kitchen.jsonl.gz)) | `data/raw/amazon_reviews/` |
+| Google Trends | 검색어별 CSV | - | [Google Trends](https://trends.google.com/explore)에서 직접 내려받기 | `data/raw/google_trends/` |
+
+- Amazon Reviews는 카테고리마다 파일이 따로 있습니다. 다른 카테고리가 필요하면 위 주소의 `Home_and_Kitchen` 부분을 카테고리 이름으로 바꾸면 됩니다.
+- 리뷰 파일은 압축을 풀면 훨씬 커지므로 `.gz` 그대로 두고 읽는 것을 권장합니다.
+- 터미널에서 받을 때:
+  ```bash
+  curl -L -o data/raw/open_ecommerce/amazon-purchases.csv "https://dataverse.harvard.edu/api/access/datafile/7616235?format=original"
+  curl -L -C - -o data/raw/amazon_reviews/Home_and_Kitchen.jsonl.gz "https://mcauleylab.ucsd.edu/public_datasets/data/amazon_2023/raw/review_categories/Home_and_Kitchen.jsonl.gz"
+  ```
+  (`-C -`는 받다가 끊기면 이어받기)
+
 ## 폴더 구조
 ```
 Cart-To-Chart/
