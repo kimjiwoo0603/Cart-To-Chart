@@ -27,3 +27,21 @@
 품목별 리뷰 수와 평균 평점 (셀 3 표)
 시간대는 UTC 기준, 첫 주 라벨은 2017-12-31
 ASIN 목록은 임시 목록 사용 중 (B 결과로 교체 예정). 두 품목에 걸친 ASIN 1개는 구매가 더 많은 품목으로 배정
+### 2026-10-04 A. Google Trends 처리 기준 결정 (안서연)
+코드: `src/collect/google_trends.py` (수집), `src/preprocess/trends.py` (전처리). 실행할 때마다 점검 결과가 `logs/trends_qc.md`에 새로 써진다.
+
+| 항목 | 결정 | 이유 |
+|---|---|---|
+| 묶음 구성 | 1: blanket + toilet paper, disinfecting wipes, jigsaw puzzle, baking pan / 2: blanket + baking, weighted blanket, tumbler / 3: blanket + air purifier, air fryer (예비) | 본 키워드 7개는 묶음 1·2, 예비 2개는 묶음 3. 매핑표 `mapping/keyword_product_mapping.csv`를 이 기준으로 채움 |
+| 원본 저장 | 수동 다운로드와 같은 CSV 형식으로 저장, `"<1"` 문자열 그대로 유지 | pytrends `interest_over_time()`은 `<1`을 0으로 바꿔 진짜 0과 구분이 안 된다. 응답의 `formattedValue`를 저장한다. 수동 다운로드 파일은 `--import`로 같은 폴더에 넣는다 |
+| 환산 계수 | 묶음·회차마다 상수 하나: `sum(묶음1 blanket) / sum(이 묶음 blanket)`. **명세 6번(주별 비율)과 다름** | 같은 기간·지역이면 Trends는 묶음마다 상수 하나로 정규화하므로 진짜 계수는 상수다. 주별 비율에는 정수 반올림 잡음이 그대로 들어가고, blanket 값이 낮은 여름에 특히 크다. 근거 확인용으로 주별 비율 분포(평균·중앙값·CV·최소~최대)를 `trends_qc.md`와 `data/interim/cleaned_trends/conversion_factors.csv`에 남긴다 |
+| 환산·평균 순서 | 회차별로 환산한 뒤 3회 평균. **명세 5→6 순서와 다름** | 회차마다 정규화 기준(묶음 최댓값)이 달라질 수 있다. 각 조회에서 100이 된 키워드·주를 `trends_qc.md`에 기록한다. 회차마다 위치가 바뀐 묶음이 있으면 이 순서를 택한 근거가 된다. 회차 = 묶음마다 받은 날짜순 번호이고, k회차는 묶음 1의 k회차 blanket으로 환산 |
+| blanket 값 | 기준 묶음(1)의 blanket을 쓴다 | 다른 묶음의 blanket은 환산 후 거의 같아지므로 환산 기준으로만 쓴다 |
+| 3회 차이 판정 | 원본 스케일(0~100)에서 최대−최소 > 20인 주를 기록 | 환산 후에는 묶음마다 스케일이 달라 20의 의미가 달라진다 |
+| 결측 | 빈 값·빠진 주는 결측으로 둔다. 평균은 남은 회차로 내고, 쓴 회차 수(`n_runs`)를 interim에 남긴다 | 명세대로 0으로 채우지 않음 |
+| keyword 컬럼 | 품목에 키워드가 여러 개면 `\|`로 잇는다 (`baking pan\|baking`, `blanket\|weighted blanket`) | 품목당 1행(6 × 261)을 유지해 C의 left join에서 중복이 생기지 않게 한다. 키워드별 값은 `data/interim/cleaned_trends/keyword_weekly.csv` |
+| trends_yoy | `trends − 52주 전 trends` (차이). 처음 52주(2017-12-31 ~ 2018-12-23)는 결측 | 52주 = 364일이라 1년에 하루씩 밀리지만 5년 동안 무시할 수준 |
+| spike 기준 | `is_spike`(trends 기준)에 더해 `is_spike_yoy`(trends_yoy 기준)도 만든다 | 원자료 spike는 12월 쇼핑 시즌이 섞인다. C의 통합 컬럼에 `is_spike_yoy`를 추가할지 C와 상의 필요 |
+| z 계산 | 직전 12주(이번 주 제외) 평균·표본표준편차, **표준편차 하한 1.0**. 12주가 다 차야 계산 (trends는 13번째 주부터, yoy는 65번째 주부터) | 직전 12주가 평평하면(특히 `<1`→0.5 구간) std≈0이라 작은 변화도 z가 크게 뛴다. 1점 미만 흔들림은 반올림 수준으로 본다 |
+| spike 병합 | z ≥ 2인 주가 직전에 잡힌 z ≥ 2 주와 8주 미만 간격이면 같은 spike로 본다 (연쇄 병합) | 명세 "앞 spike와 8주 이상 떨어진 것만" |
+| spike 대표 주 | 병합된 spike의 **첫 주**. `is_spike`는 첫 주에만 1. `spikes.csv`에는 시작·최댓값·끝 주, 길이, z ≥ 2 주 수, 직전 12주 평균, 시작·최대 z를 모두 적는다 | 검색 → 구매 시차 분석에는 시작 시점이 맞다 |

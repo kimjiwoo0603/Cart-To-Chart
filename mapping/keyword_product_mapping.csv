@@ -1,1 +1,11 @@
 keyword,product_type,asin,note
+toilet paper,TOILET_PAPER,,
+disinfecting wipes,SURFACE_CLEANING_WIPE,,
+jigsaw puzzle,PUZZLES,,
+baking pan,BAKING_PAN,,
+baking,BAKING_PAN,,
+blanket,BLANKET,,기준 키워드 (모든 묶음에 포함)
+weighted blanket,BLANKET,,
+tumbler,DRINKING_CUP,,
+air purifier,AIR_PURIFIER,,예비
+air fryer,AIR_FRYER,,예비
