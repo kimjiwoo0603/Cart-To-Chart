@@ -31,7 +31,9 @@ TARGET_PRODUCTS = [
 
 
 # 출력 폴더가 없으면 자동으로 생성
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+CLEANED_PATH.parent.mkdir(parents=True, exist_ok=True)
+WEEKLY_PATH.parent.mkdir(parents=True, exist_ok=True)
+ASIN_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 
 # ============================================================
