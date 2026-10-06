@@ -8,14 +8,13 @@ from pathlib import Path
 # 0. 경로 및 기본 설정
 # ============================================================
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parents[2]   # 저장소 최상위 폴더
 
-RAW_PATH = BASE_DIR / "data" / "amazon-purchases.csv"
-OUTPUT_DIR = BASE_DIR / "output"
+RAW_PATH = BASE_DIR / "data" / "raw" / "open_ecommerce" / "amazon-purchases.csv"
 
-CLEANED_PATH = OUTPUT_DIR / "purchases_clean_2018_2022.csv"
-WEEKLY_PATH = OUTPUT_DIR / "weekly_purchase_final.csv"
-ASIN_PATH = OUTPUT_DIR / "asin_list.csv"
+CLEANED_PATH = BASE_DIR / "data" / "interim" / "cleaned_purchase" / "purchases_clean_2018_2022.csv"
+WEEKLY_PATH  = BASE_DIR / "data" / "processed" / "weekly_purchase" / "weekly_purchase.csv"
+ASIN_PATH    = BASE_DIR / "data" / "processed" / "asin_list.csv"
 
 START_DATE = pd.Timestamp("2018-01-01")
 END_DATE = pd.Timestamp("2022-12-31")
@@ -84,17 +83,9 @@ gift_card_category_mask = (
     df["Category"].isin(gift_card_categories)
 )
 
-gift_card_title_mask = (
-    df["Title"]
-    .fillna("")
-    .str.upper()
-    .str.contains("GIFT CARD", regex=False)
-)
-
-gift_card_mask = (
-    gift_card_category_mask |
-    gift_card_title_mask
-)
+# 전: Category 조건 OR 제목 조건
+# 후: Category 조건만
+gift_card_mask = gift_card_category_mask
 
 print("\n제외된 기프트카드 구매 기록:", gift_card_mask.sum())
 
@@ -375,7 +366,7 @@ active_by_week["active_respondents"] = (
     active_by_week["week"]
     .apply(
         lambda week: (
-            (respondent_period["first_purchase"] <= week) &
+            (respondent_period["first_purchase"] <= week + pd.Timedelta(days=6)) &
             (respondent_period["last_purchase"] >= week)
         ).sum()
     )
