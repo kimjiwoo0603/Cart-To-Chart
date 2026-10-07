@@ -97,7 +97,7 @@ ASIN 목록은 임시 목록 사용 중 (B 결과로 교체 예정). 두 품목�
 - 결과: 급증 100건(상품 10개) / 기준 100건(상품 10개) → `data/processed/eot_pilot/eot_pilot_sample.csv`
 - 사람 라벨용 50건 (구간별 25건, 구간·평점 숨김) → `label_sheet_A.csv`, `label_sheet_B.csv`
 
-### 2026-10-06 T3. EOT-DETECT 감정·원인 구절 추출: 화장지 시험 (김지우)
+### 2026-10-06 T3. EOT-DETECT 감정·원인 구절 추출: 화장지 시험, 5건 시범 실행 (김지우)
 노트북: `notebooks/05_eot_detect_colab.ipynb` (Colab T4). 기준: Attri et al. (2025) 4.3절·부록 B·D
 
 - 모델 mistralai/Mistral-7B-Instruct-v0.2, 4비트(nf4) 양자화 (논문과 다른 점: T4 메모리 한계). 설정 temperature 0.2 / top_p 0.95 / top_k 25 / max_new_tokens 2500, 시드 20261006
@@ -113,10 +113,22 @@ ASIN 목록은 임시 목록 사용 중 (B 결과로 교체 예정). 두 품목�
 - 프롬프트: 논문이 전문을 공개하지 않아 S·T·I1~I5·R 구조와 부록 D 문구로 재구성. S는 사용자 메시지 앞에 붙임 (모델에 시스템 역할 없음)
 - 리뷰 200건 / JSON 읽기 성공 200건 (방법별 {'json': 177, 'regex': 23}) / 9개 밖 감정 이름 45개 {'Disappointment': 31, 'Dissatisfaction': 2, 'Guilt': 1, "Dislike, derived from 'Do not like'": 1, 'Disbelief': 1, 'Pride': 1, 'Surprise, Disappointment, Frustration': 1, 'Discomfort': 1, 'Satisfaction': 1, 'Disappointment (a form of Sadness)': 1, 'Doubt': 1, 'Relief': 1, 'Frustration': 1, 'Happiness': 1}
 - trigger 352개: 글자 그대로 297 / 대소문자·공백만 다름 20 / 본문에 없음 35 → 분석은 글자 그대로만 사용
-### 2026-10-06 T3. EOT-DETECT 감정·원인 구절 추출: 화장지 시험 (김지우)
-노트북: `notebooks/05_eot_detect_colab.ipynb` (Colab T4). 기준: Attri et al. (2025) 4.3절·부록 B·D
 
-- 모델 mistralai/Mistral-7B-Instruct-v0.2, 4비트(nf4) 양자화 (논문과 다른 점: T4 메모리 한계). 설정 temperature 0.2 / top_p 0.95 / top_k 25 / max_new_tokens 2500, 시드 20261006
-- 프롬프트: 논문이 전문을 공개하지 않아 S·T·I1~I5·R 구조와 부록 D 문구로 재구성. S는 사용자 메시지 앞에 붙임 (모델에 시스템 역할 없음)
-- 리뷰 200건 / JSON 읽기 성공 200건 (방법별 {'json': 177, 'regex': 23}) / 9개 밖 감정 이름 45개 {'Disappointment': 31, 'Dissatisfaction': 2, 'Guilt': 1, "Dislike, derived from 'Do not like'": 1, 'Disbelief': 1, 'Pride': 1, 'Surprise, Disappointment, Frustration': 1, 'Discomfort': 1, 'Satisfaction': 1, 'Disappointment (a form of Sadness)': 1, 'Doubt': 1, 'Relief': 1, 'Frustration': 1, 'Happiness': 1}
-- trigger 352개: 글자 그대로 297 / 대소문자·공백만 다름 20 / 본문에 없음 35 → 분석은 글자 그대로만 사용
+### 2026-10-07 T4. 급증 vs 기준 구간 감정 비교: 화장지 시험 (김지우)
+노트북: `notebooks/06_eot_pilot_compare.ipynb`. 그림: `figures/eot_pilot_emotion_by_period.png`
+
+- 분노(Anger): 기준 5/100 → 급증 18/100 (Fisher p = 0.0067, 9개 동시 검정 Holm 보정 p = 0.060)
+- 기쁨(Joy): 기준 51/100 → 급증 43/100 (p = 0.32)
+- 부정 감정(분노·혐오·슬픔·두려움 중 하나): 기준 14/100 → 급증 35/100 (p = 0.0009); 실망을 슬픔으로 셀 때 33/100 → 49/100 (p = 0.0308)
+- 급증 구간 분노 원인 구절: 가격 폭리(price gouging), 2겹이라더니 1겹(광고와 다름), 롤 크기·매수 부족
+- 한계: 모델 결과 사람 라벨 검증 전, 구간별 상품이 다름, 표본 구간당 100건
+
+### 2026-10-07 T5. 사람 라벨 50건으로 모델 검증 (김지우)
+노트북: `notebooks/07_eot_validation.ipynb`. 라벨러: 정세은(A), 김다빈(B), 지침 `docs/EOT_라벨링_지침.md`
+
+- 사람끼리 일치도: 감정 Cohen κ 0.88 (Fleiss κ 0.88), 원인 구절 토큰 κ 0.79 / 논문 0.88, 0.84
+- 모델 vs 정답(두 사람 모두 표시한 감정): P 0.80 / R 0.34 / micro F1 0.47 (macro 0.29) / 논문 F1 0.86
+- 사람 A vs 사람 B micro F1 0.91 (사람 수준 참고값)
+- 실망→슬픔 보조: micro F1 0.51
+- 원인 구절 ROUGE-L 0.58 / 논문 0.68
+- 정답과 다른 리뷰 45/50건
